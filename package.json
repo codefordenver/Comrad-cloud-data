@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "dotenv": "^6.0.0",
-		"mongoose": "^5.3.8",
-		"pg": "^7.6.0"
+    "mongoose": "^5.3.8",
+    "pg": "^7.6.0"
   }
 }
