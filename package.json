@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Comrad is an open-source web application for use by community radio stations that helps with crucial show scheduling and playlist entry to organize all on air and streaming processes for hosts and DJ’s.",
   "main": "index.js",
+  "engines" : { "node" : "8.10" },
   "scripts": {
   },
   "repository": {
