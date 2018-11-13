@@ -1,8 +1,3 @@
-//NEXT STEPS:
-//2. be sure duplicates are not saved
-//5. test in lambda
-//6. execute locally
-
 const db = require('../../models');
 const { Client }  = require('pg');
 const mongoose = require('mongoose');
@@ -12,19 +7,20 @@ const importSource = "MusicBrainz";
 mongoose.connect(process.env.MONGO_CONNECTION);
 const pgClient = new Client()
 
-exports.myHandler = async function(event, context, callback) {   
-  console.log('Starting MusicBrainz import process.');
+module.exports = async function(event, context, callback) {   
+  console.log('Starting MusicBrainz artist import process.');
   try {
     //Connect to MusicBrainz DB and run a query for all artists
     //Import MusicBrainz artists into a Mongo database
     
-    var importProgress = await db.ImportProgress.findOne();
+    let importProgress = await db.ImportProgress.findOne();
     if (importProgress == null) {
       importProgress = new db.ImportProgress({artist_import: { last_imported_id: 0 }});
     }
     
-    var recordsToProcess = 50;
-    var numberOfReturnedRecords;
+    let recordsToProcess = 1500;
+    let numberOfReturnedRecords;
+    let numberOfArtistsImported = 0;
     
     await pgClient.connect() //open postgresql connection to MusicBrainz database
     
@@ -39,11 +35,11 @@ exports.myHandler = async function(event, context, callback) {
       
       numberOfReturnedRecords = res.rows.length;
       
+      let newArtists = [];
+      let idsToImport = [];
+      
       await Promise.all(res.rows.map(async row => {
-        // be sure this record is not already in Mongo
-        let existingArtist = await db.Artist.findOne({"import_source":{"name":importSource,"id":row['id']}});
-        if (existingArtist != null) return;
-        //save the artist to mongo
+        idsToImport.push(row['id']);
         let newArtist = new db.Artist({
           name: row['name'],
           import_source: {
@@ -51,27 +47,47 @@ exports.myHandler = async function(event, context, callback) {
             'id': row['id']
           }
         });
-        await newArtist.save();
+        newArtists.push(newArtist);
       }));
       
+      // be sure the records we are inserting are not already in Mongo
+      let existingArtists = await db.Artist.find({"import_source.name":importSource,"import_source.id":{"$in":idsToImport}});
+      var filteredArtists = newArtists.filter(function(newArtist) {
+        for (let i = 0; i < existingArtists.length; i++) {
+          if (existingArtists[i]['import_source']['id'] == newArtist['import_source']['id']) {
+            return false;
+          }
+        }
+        return true;
+      });
+      
+      if (filteredArtists.length > 0) {
+        await db.Artist.collection.insertMany(filteredArtists);
+      }
+      
+      let maxId = 0;
+      if (idsToImport.length > 0) {
+        maxId = idsToImport.reduce(function(a, b) {
+            return Math.max(a, b);
+        });
+      }
+      
       importProgress['artist_import']['last_processed_date'] = Date.now();
-      importProgress['artist_import']['last_imported_id'] += recordsToProcess;
+      importProgress['artist_import']['last_imported_id'] = Math.max(maxId, importProgress['artist_import']['last_imported_id']);
       importProgress.save();
+      numberOfArtistsImported++;
       
     }
     
     await pgClient.end(); //close the postgresql connection
     
-    console.log('Finished MusicBrainz import process.');
+    console.log('Finished MusicBrainz artist import process: ' + numberOfArtistsImported + ' artists were imported');
+    
+    callback(null, "Artist import success: " + numberOfArtistsImported + ' artists were imported');
     
   } catch (error) {
-    //todo: better way to error handle async/await?
-    console.error('ERROR: MusicBrainz import process');
-    throw error;
-  }
-  
-  //needed for lambda:
-  //callback(null, "some success message");
-  // or 
-  // callback("some error type"); 
+    console.error('ERROR: MusicBrainz artist import process');
+    console.error(error.message);
+    callback("Error importing MusicBrains artists: " + error.message); 
+  } 
 }

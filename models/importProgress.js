@@ -2,6 +2,17 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const importProgressSchema = new Schema({ 
+  album_import: {
+    last_imported_artist_id: {
+      type: Number
+    },
+    last_imported_date: {
+      type: Date
+    },
+    last_imported_release_group_id: {
+      type: Number
+    }
+  },
   artist_import: {
     last_imported_id: {
       type: Number

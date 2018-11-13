@@ -1,3 +1,7 @@
 require('dotenv').load()
-var test = require('./scripts/musicbrainz-initial-dump/importArtists.js')
-test.myHandler()
+var lambdaFunctions = require('./lambda')
+lambdaFunctions.importAlbums(null, null, function(error, successMessage) {
+  console.log("LAMBDA CALLBACK:");
+  console.log(error);
+  console.log(successMessage);
+});

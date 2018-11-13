@@ -1,3 +1,7 @@
+//suggested index:
+//{"import_source.name": 1,"import_source.id": 1}
+
+
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
