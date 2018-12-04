@@ -40,6 +40,7 @@ module.exports = async function(event, context, callback) {
     await pgClient.connect() //open postgresql connection to MusicBrainz database
     
     while (numberOfReturnedRecords == null || numberOfReturnedRecords > 0) {
+      //TODO: how to filter this on -- either artist name = 'Various Artists', or the artist has listens?
       let artist = await db.Artist.findOne({"import_source.name": importSource, "import_source.id":{"$gt":lastImportedArtistId}}, 
         null,
         {

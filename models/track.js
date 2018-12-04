@@ -1,23 +1,46 @@
 //suggested index:
 //{"import_source.name": 1,"import_source.id": 1}
 
-
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const artistSchema = new mongoose.Schema({
+const trackSchema = new mongoose.Schema({
   name: {
     type: String
   },
-
+  
+  album: {
+    type: Schema.Types.ObjectId,
+    ref: 'Album'
+  },
+  
+  artists: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Artist'
+    }
+  ],
+  
+  duration_in_seconds: {
+    type: Number
+  },
+  
+  track_number: {
+    type: Number
+  },
+  
+  disk_number: {
+    type: Number
+  },
+  
   import_source: { //eg, name: MusicBrainz, id: 123
     name: String, //the name of the external system this record came from
     id: Number //the id in the external system for this record
   },
   
+  //TODO: how do yu write schema for this?
   listens: [
     {
-      _id: false,
       import_source: { type: String },
       listens: { type: Number }
     }
@@ -34,6 +57,6 @@ const artistSchema = new mongoose.Schema({
   }
 });
 
-const Artist = mongoose.model('Artist', artistSchema);
+const Track = mongoose.model('Track', trackSchema);
 
-module.exports = Artist
+module.exports = Track

@@ -20,7 +20,18 @@ const importProgressSchema = new Schema({
     last_imported_date: {
       type: Date
     }
-  }
+  },
+  track_import: {
+    last_imported_artist_id: {
+      type: Number
+    },
+    last_imported_date: {
+      type: Date
+    },
+    last_imported_track_id: {
+      type: Number
+    }
+  },
 });
 
 const ImportProgress = mongoose.model('ImportProgress', importProgressSchema);
