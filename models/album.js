@@ -1,6 +1,3 @@
-//suggested index:
-//{"import_source.name": 1,"import_source.id": 1}
-
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
@@ -37,6 +34,9 @@ const albumSchema = new Schema({
     id: Number //the id in the external system for this record
   }
 })
+
+albumSchema
+  .index({"import_source.name": 1,"import_source.id": 1}, {"unique": true});
 
 const Album = mongoose.model('Album', albumSchema)
 

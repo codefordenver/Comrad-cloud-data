@@ -113,6 +113,11 @@ module.exports = async function(event, context, callback) {
       console.log("saved artists: " + updatedArtists.join(" || "));
     }
     
+    //save import progress
+    importProgress['artist_listen_import']['last_imported_index'] = Math.min(i, listenKeys.length);
+    importProgress['artist_listen_import']['last_imported_date'] = Date.now();
+    importProgress.save();
+    
     console.log('Finished ListenBrainz artist listen import  (end time: ' + Date.now() + ')');
     
     callback(null, "ListenBrainz artist import success");

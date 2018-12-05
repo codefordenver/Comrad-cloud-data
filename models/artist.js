@@ -1,7 +1,3 @@
-//suggested indexes:
-//{"import_source.name": 1,"import_source.id": 1}
-//{"name": 1}
-
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
@@ -33,6 +29,10 @@ const artistSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+artistSchema
+  .index({"import_source.name": 1,"import_source.id": 1}, {"unique": true})
+  .index({"name": 1});
 
 const Artist = mongoose.model('Artist', artistSchema);
 
