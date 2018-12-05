@@ -41,36 +41,48 @@ module.exports = async function(event, context, callback) {
     
     console.log("Finished parsing ListenBrainz data.");
     
-    //save listens to database, looping through them 50 at a time
+    //save listens to database, looping through them in batches
     let listenKeys = Object.keys(allArtistListens);
-    for (var i = 0; i < listenKeys.length; i = i + 50) {
-      let listenKeysGroup = listenKeys.slice(i, Math.min(i + 50, listenKeys.length));
-      await Promise.all(listenKeysGroup.map(async artist_name => {
-       
-        let artist = await db.Artist.findOne({"name": artist_name});
-        if (artist == null) {
-          console.log("Could not find artist: " + artist_name);
-          return;
-        }
-
+    for (var i = 0; i < listenKeys.length; i = i + 1000) {
+      let listenKeysGroup = listenKeys.slice(i, Math.min(i + 1000, listenKeys.length));
+      let artists = await db.Artist.find({"name": { "$in": listenKeysGroup }});
+      let updatedArtists = [];
+      let bulkOperations = [];
+      
+      artists.forEach(function(artist) {
+        
+        updatedArtists.push(artist.name);
+        
         let listenBrainzIndex = artist.listens.findIndex(function(r) {
           return r.import_source == importSource;
         });
+        
+        let artistUpdate = {
+          "updated_at": Date.now()
+        };
 
         if (listenBrainzIndex == -1) {
-          artist.listens.set(artist.listens.length, {
-            'import_source': importSource,
-            'listens': allArtistListens[artist_name]
-          });
+          artistUpdate["$push"] = {
+              "listens": {
+                'import_source': importSource,
+                'listens': allArtistListens[artist.name]
+              }
+          };
         } else {
-          let listensObject = artist.listens[listenBrainzIndex];
-          listensObject.listens = allArtistListens[artist_name];
-          artist.listens.set(listenBrainzIndex, listensObject);
+          artistUpdate["listens." + listenBrainzIndex + ".listens"] = allArtistListens[artist.name];
         }
-        artist.updated_at = Date.now();
-        await artist.save();
-        console.log("Finished save for artist: " + artist_name);
-      }));
+        bulkOperations.push({
+          "updateOne": {
+            "filter": {"name":artist.name},
+            "update": artistUpdate
+          }
+        });
+      });
+      
+      
+      
+      await db.Artist.bulkWrite(bulkOperations);
+      console.log("saved artists: " + updatedArtists.join(" || "));
     }
     
     console.log('Finished ListenBrainz artist listen import');
