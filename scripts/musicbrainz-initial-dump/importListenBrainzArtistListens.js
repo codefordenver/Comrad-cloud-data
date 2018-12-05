@@ -39,11 +39,27 @@ module.exports = async function(event, context, callback) {
       });
     });
     
-    console.log("Finished parsing ListenBrainz data.");
+    console.log("Finished parsing ListenBrainz data. Found " + Object.keys(allArtistListens).length + " artists");
+    
+    let importProgress = await db.ImportProgress.findOne();
+    let startIndex = 0;
+    
+    if (importProgress['artist_listen_import'] != null && importProgress['artist_listen_import']['last_imported_index'] != null) {
+      startIndex = importProgress['artist_listen_import']['last_imported_index'];
+    } else {
+      importProgress['artist_listen_import'] = {'last_imported_index':startIndex};
+    }
+    
+    console.log("Starting with index: " + startIndex);
     
     //save listens to database, looping through them in batches
     let listenKeys = Object.keys(allArtistListens);
-    for (var i = 0; i < listenKeys.length; i = i + 1000) {
+    for (var i = startIndex; i < listenKeys.length; i = i + 1000) {
+      //save import progress
+      importProgress['artist_listen_import']['last_imported_index'] = i;
+      importProgress['artist_listen_import']['last_imported_date'] = Date.now();
+      importProgress.save();
+      
       let listenKeysGroup = listenKeys.slice(i, Math.min(i + 1000, listenKeys.length));
       let artists = await db.Artist.find({"name": { "$in": listenKeysGroup }});
       let updatedArtists = [];

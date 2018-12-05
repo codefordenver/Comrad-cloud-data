@@ -21,6 +21,14 @@ const importProgressSchema = new Schema({
       type: Date
     }
   },
+  artist_listen_import: {
+    last_imported_index: {
+      type: Number
+    },
+    last_imported_date: {
+      type: Date
+    }
+  },
   track_import: {
     last_imported_artist_id: {
       type: Number
