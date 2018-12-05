@@ -9,7 +9,7 @@ const importSource = 'ListenBrainz';
 mongoose.connect(process.env.MONGO_CONNECTION);
 
 module.exports = async function(event, context, callback) {   
-  console.log('Starting ListenBrainz artist listen import process.');
+  console.log('Starting ListenBrainz artist listen import process. (start time: ' + Date.now() + ')');
   try {
     
     var allArtistListens = {};
@@ -62,10 +62,20 @@ module.exports = async function(event, context, callback) {
       
       let listenKeysGroup = listenKeys.slice(i, Math.min(i + 1000, listenKeys.length));
       let artists = await db.Artist.find({"name": { "$in": listenKeysGroup }});
+      //only update one record for each artist name -- the MusicBrainz import results in duplicate artist records
+      let uniqueArtists = [];
+      let uniqueArtistNames = [];
+      artists.forEach(function(artist) {
+        if (uniqueArtistNames.indexOf(artist.name) == -1) {
+          uniqueArtistNames.push(artist.name);
+          uniqueArtists.push(artist);
+        }
+      });
+      console.log('Got ' + artists.length + ' artist records (' + uniqueArtists.length + ' unique names) from Mongo for batch');
       let updatedArtists = [];
       let bulkOperations = [];
       
-      artists.forEach(function(artist) {
+      uniqueArtists.forEach(function(artist) {
         
         updatedArtists.push(artist.name);
         
@@ -85,7 +95,9 @@ module.exports = async function(event, context, callback) {
               }
           };
         } else {
-          artistUpdate["listens." + listenBrainzIndex + ".listens"] = allArtistListens[artist.name];
+          console.log(artist.name + " already has listens record for ListenBrainz, replacing record");
+          let indexKey = "listens." + listenBrainzIndex + ".listens";
+          artistUpdate["$set"] = { indexKey: allArtistListens[artist.name] };
         }
         bulkOperations.push({
           "updateOne": {
@@ -101,7 +113,7 @@ module.exports = async function(event, context, callback) {
       console.log("saved artists: " + updatedArtists.join(" || "));
     }
     
-    console.log('Finished ListenBrainz artist listen import');
+    console.log('Finished ListenBrainz artist listen import  (end time: ' + Date.now() + ')');
     
     callback(null, "ListenBrainz artist import success");
     
