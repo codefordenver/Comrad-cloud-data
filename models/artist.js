@@ -31,8 +31,8 @@ const artistSchema = new mongoose.Schema({
 });
 
 artistSchema
-  .index({"import_source.name": 1,"import_source.id": 1}, {"unique": true})
-  .index({"name": 1});
+  .index({"import_source.name": 1,"import_source.id": 1}, {"unique": true, "background": true})
+  .index({"name": 1}, {"background": true});
 
 const Artist = mongoose.model('Artist', artistSchema);
 

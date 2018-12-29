@@ -36,7 +36,7 @@ const albumSchema = new Schema({
 })
 
 albumSchema
-  .index({"import_source.name": 1,"import_source.id": 1}, {"unique": true});
+  .index({"import_source.name": 1,"import_source.id": 1}, {"unique": true, "background": true});
 
 const Album = mongoose.model('Album', albumSchema)
 

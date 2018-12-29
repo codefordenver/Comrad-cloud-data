@@ -8,9 +8,6 @@ const importProgressSchema = new Schema({
     },
     last_imported_date: {
       type: Date
-    },
-    last_imported_release_group_id: {
-      type: Number
     }
   },
   artist_import: {
