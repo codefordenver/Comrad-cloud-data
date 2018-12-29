@@ -44,11 +44,15 @@ module.exports = async function(event, context, callback) {
         null,
         {
           skip: 0, 
-          limit: lastImportedArtistId > 0 ? 500 : 50, //use 50 for the first batch, because "Various Artists" is the first record and it has a TON of albums
+          limit: lastImportedArtistId > 0 ? 1500 : 50, //use 50 for the first batch, because "Various Artists" is the first record and it has a TON of albums
           sort: "import_source.id"
       });
       
       numberOfReturnedRecords = artists.length;
+      
+      if (numberOfReturnedRecords == 0) {
+        break;
+      }
       
       // query the MusicBrainz database for albums by that artist
       
