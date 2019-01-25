@@ -18,6 +18,10 @@ const artistSchema = new mongoose.Schema({
       listens: { type: Number }
     }
   ],
+  
+  popularity: { //a number from 0-100, with 100 being the most popular
+    type: Number
+  },
 
   created_at: {
     type: Date,

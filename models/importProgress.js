@@ -32,9 +32,14 @@ const importProgressSchema = new Schema({
     },
     last_imported_date: {
       type: Date
-    },
-    last_imported_track_id: {
+    }
+  },
+  track_listen_import: {
+    last_imported_index: {
       type: Number
+    },
+    last_imported_date: {
+      type: Date
     }
   },
 });

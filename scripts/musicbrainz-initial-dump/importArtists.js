@@ -72,7 +72,7 @@ module.exports = async function(event, context, callback) {
         });
       }
       
-      importProgress['artist_import']['last_processed_date'] = Date.now();
+      importProgress['artist_import']['last_imported_date'] = Date.now();
       importProgress['artist_import']['last_imported_id'] = Math.max(maxId, importProgress['artist_import']['last_imported_id']);
       importProgress.save();
       numberOfArtistsImported++;

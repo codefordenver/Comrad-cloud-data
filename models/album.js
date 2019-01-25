@@ -18,6 +18,10 @@ const albumSchema = new Schema({
   compilation: {
     type: Boolean
   },
+  
+  popularity: { //a number from 0-100, with 100 being the most popular
+    type: Number
+  },
 
   created_at: {
     type: Date,
@@ -36,7 +40,8 @@ const albumSchema = new Schema({
 })
 
 albumSchema
-  .index({"import_source.name": 1,"import_source.id": 1}, {"unique": true, "background": true});
+  .index({"import_source.name": 1,"import_source.id": 1}, {"unique": true, "background": true})
+  .index({"artist": 1}, {"background": true});
 
 const Album = mongoose.model('Album', albumSchema)
 

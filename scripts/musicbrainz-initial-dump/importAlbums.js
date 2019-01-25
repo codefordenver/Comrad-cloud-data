@@ -61,7 +61,7 @@ module.exports = async function(event, context, callback) {
       //loop through records in batches: this helps with artists that have an enormous number of albums, like "Various Artists"
       let parameters = artists.map(function(artist) { return artist['name'] });
       console.log('query start');
-      let res = await pgClient.query(
+      let res = await pgClient.query( //TODO: maybe filter this down by what release_id values are in the mongo database for that artist?
         'SELECT artist_credit.name AS artist_name, release_group.name AS album_name, release_group.id AS release_group_id, ' +
         '( ' + 
         'SELECT release.id FROM release ' + 
@@ -100,7 +100,7 @@ module.exports = async function(event, context, callback) {
           name: row['album_name'],
           artist: row['artist_name'] == 'Various Artists' ? null : artists.filter(function(artist) {
             return artist['name'] == row['artist_name'];
-          }),
+          })[0],
           compilation: row['artist_name'] == 'Various Artists' ? true : false,
           label: row['label_name'],
           import_source: {
@@ -143,7 +143,7 @@ module.exports = async function(event, context, callback) {
       });
       
       importProgress['album_import']['last_imported_artist_id'] = lastImportedArtistId;
-      importProgress['album_import']['last_processed_date'] = Date.now();
+      importProgress['album_import']['last_imported_date'] = Date.now();
       await importProgress.save();
       
       numberOfArtistsProcessed += artists.length;

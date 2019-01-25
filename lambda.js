@@ -4,7 +4,6 @@ module.exports = {
   importListenBrainzArtistListens:  require('./scripts/musicbrainz-initial-dump/importListenBrainzArtistListens'),
   importListenBrainzTrackListens:  require('./scripts/musicbrainz-initial-dump/importListenBrainzTrackListens'),
   importTracks:  require('./scripts/musicbrainz-initial-dump/importTracks'),
-  
-  //popularity
-  calculatePopularity: require('./scripts/popularity/calculatePopularity')
+  calculateInitialPopularity: require('./scripts/musicbrainz-initial-dump/calculateInitialPopularity'),
+  generateDataDump: require('./scripts/musicbrainz-initial-dump/generateDataDump')
 }
