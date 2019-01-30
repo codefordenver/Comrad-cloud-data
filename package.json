@@ -1,0 +1,26 @@
+{
+  "name": "comrad-cloud-data",
+  "version": "1.0.0",
+  "description": "Comrad is an open-source web application for use by community radio stations that helps with crucial show scheduling and playlist entry to organize all on air and streaming processes for hosts and DJ’s.",
+  "main": "index.js",
+  "engines" : { "node" : "8.10" },
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codefordenver/Comrad-cloud-data.git"
+  },
+  "author": "Code for Denver and Contributors",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codefordenver/Comrad-could-data/issues"
+  },
+  "homepage": "https://github.com/codefordenver/Comrad-could-data#readme",
+  "devDependencies": {
+  },
+  "dependencies": {
+    "dotenv": "^6.0.0",
+    "mongoose": "^5.3.8",
+    "pg": "^7.6.0"
+  }
+}
